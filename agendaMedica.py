@@ -3,11 +3,12 @@ import os
 import sys
 import platform 
 import time
+from imagenToString import imgToStr
 
 # Modifique esta variable con su nombre
 str_nombrePaciente = "Neku"
 str_nombreAgenda 	 = "agenda.json"
-
+str_imgAsistente   = imgToStr("rem.png", 60) 
 
 
 
@@ -17,6 +18,7 @@ def limpiarPantalla():
 		os.system('cls')
 	else: # Linux || OSX
 		os.system('clear')
+	print(str_imgAsistente)
 
 
 def mecanografiar(texto, velocidad=0.10):
@@ -31,7 +33,8 @@ def mecanografiar(texto, velocidad=0.10):
 
 def salirPrograma ():
 	limpiarPantalla()
-	print("¡Hasta la próxima! ^^")
+	mecanografiar("Vale.")
+	mecanografiar("¡Hasta la próxima! ^-^")
 	sys.exit(0)
 
 
@@ -44,8 +47,9 @@ def salirPrograma ():
 char_c = ''
 while (char_c not in ['n', 'N', 's', 'S']):
 	limpiarPantalla()
+	#print(str_imgAsistente)
 	mecanografiar("Buenas noches, " + str_nombrePaciente + ".")
-	mecanografiar("Soy ")
+	mecanografiar("Soy Rem, tu asistente personal.")
 	mecanografiar("Hoy es " + time.strftime("%A %d de %B de %Y")) # Miércoles 07 de Junio de 2017 
 	input()	# getch
 	mecanografiar("¿Quieres abrir una entrada?")
