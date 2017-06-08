@@ -3,7 +3,9 @@ import os
 import sys
 import platform 
 import time
+import calendario
 from imagenToString import imgToStr
+
 
 # Modifique esta variable con su nombre
 str_nombrePaciente = "Neku"
@@ -33,7 +35,6 @@ def mecanografiar(texto, velocidad=0.10):
 
 def salirPrograma ():
 	limpiarPantalla()
-	mecanografiar("Vale.")
 	mecanografiar("¡Hasta la próxima! ^-^")
 	sys.exit(0)
 
@@ -72,7 +73,7 @@ try:
 	bool_hayRegistros = True
 except Exception as e:
 	limpiarPantalla()
-	mecanografiar("No tengo registrado nada sobre ti.")
+	mecanografiar("¡Vaya!, no tengo registrado nada sobre ti.")
 	mecanografiar("No te preocupes, ahora mismo te creo una ficha.")
 	input()
 	agenda = {}
@@ -120,6 +121,24 @@ if idx_entrada in list(agenda.keys()):
 		char_c = str(input())
 
 	if char_c in ['n', 'N']:
+		limpiarPantalla()
+		char_c = ''
+		while (char_c not in ['n', 'N', 's', 'S']):
+			limpiarPantalla()
+			mecanografiar("¿Quieres que suba la entrada de hoy a Google Calendar?")
+			print(" n - No")
+			print(" s - Sí")
+			char_c = str(input())
+
+		if (char_c in ['s', 'S']):
+			bool_exito = calendario.subirEntrada(agenda[idx_entrada])
+
+			if (bool_exito):
+				mecanografiar("Entrada subida correctamente.")
+			else:
+				mecanografiar("Se produjo un error y no pude subir la entrada.")
+		else:
+			mecanografiar("Vale.")
 		salirPrograma()
 
 
@@ -161,17 +180,45 @@ else:
 
 
 
+estado = {"0": "none", "1": "bueno", "2": "regular", "3": "malo"}
+
+
+# Preguntar por valoración simple
+char_c =  ''
+while (char_c not in ['0', '1', '2', '3']):
+	limpiarPantalla()
+	mecanografiar("¿Cómo valoraría su estado de salud de hoy?")
+	print(" 0 - Saltar valoración")
+	print(" 1 - Bueno")
+	print(" 2 - Regular")
+	print(" 3 - Malo")
+	char_c = str(input())
+
+
+str_estado = char_c
+if (str_estado != "0"):
+	char_c = ''
+	while (char_c not in ['n', 'N', 's', 'S']):
+		limpiarPantalla()
+		mecanografiar("Su estado de salud de hoy ha sido " + estado[str_estado].lower() + ".")
+		mecanografiar("¿Es correcto?")
+		print(" n - No")
+		print(" s - Sí")
+		char_c = str(input())
 
 
 # Añadir datos a la agenda
 limpiarPantalla()
 mecanografiar("Estoy insertando los nuevos datos en la agenda, espera un segundo.")
 # formateo de la entrada
-dic_entrada = {"sintomas": str_sintomasDia, 
-							 "medicacion": {
-							 		"desayuno": str_medicacionDesayuno, 
-							 		"comida": 	str_medicacionComida, 
-							 		"cena": 		str_medicacionCena}}
+dic_entrada = {
+	"fecha": idx_entrada,
+	"sintomas": str_sintomasDia, 
+	"medicacion": {
+		"desayuno": str_medicacionDesayuno, 
+		"comida": 	str_medicacionComida, 
+		"cena": 		str_medicacionCena},
+	"valoracion": str_estado}
 
 # insertar
 agenda[idx_entrada] = dic_entrada
@@ -185,10 +232,44 @@ try:
 except Exception as e:
 	limpiarPantalla()
 	mecanografiar("Ha ocurrido un error mientras guardaba los datos.")
-	mecanografiar("Lo siento muchísimo, esto es lo que sé al respecto:")
+	mecanografiar("Estos son los datos que me has proporcionado, cópialos para que no se pierdan.")
+	print("- sintomas:" + str_sintomasDia)
+	print("- medicacion:")
+	print("   + desayuno: " + str_medicacionDesayuno)
+	print("   + comida:   " + str_medicacionComida)
+	print("   + cena:     " + str_medicacionCena)
+	mecanografiar("\nPulsa cualquier tecla para continuar")
+	input()
+
+	limpiarPantalla()
+	mecanografiar("Lo siento muchísimo, esto es lo que sé al respecto sobre el error:")
 	raise e
 
 limpiarPantalla()
 mecanografiar("Entrada registrada, informe completo por hoy.")
-mecanografiar("¡Que duermas bien! =^w^=")
 input()
+
+
+
+
+
+char_c = ''
+while (char_c not in ['n', 'N', 's', 'S']):
+	limpiarPantalla()
+	mecanografiar("¿Quieres que suba la entrada de hoy a Google Calendar?")
+	print(" n - No")
+	print(" s - Sí")
+	char_c = str(input())
+
+if (char_c in ['s', 'S']):
+	bool_exito = calendario.subirEntrada(dic_entrada)
+
+	if (bool_exito):
+		mecanografiar("Entrada subida correctamente.")
+	else:
+		mecanografiar("Se produjo un error y no pude subir la entrada.")
+
+
+
+
+mecanografiar("¡Que duermas bien! =^w^=")
