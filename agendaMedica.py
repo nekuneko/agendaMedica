@@ -1,10 +1,23 @@
+# pip3 install --upgrade pillow httplib2 oauth2client google-api-python-client
+
+# Mejoras Pendientes
+#  - Cifrar ficheros locales con contraseña.
+#  - Eliminar necesidad del Oauth
+#  - Comprobar si en la cuenta existe un calendario "alergia", sino crear uno nuevo
+#  - Subir una agenda completa a Google Calendar
+
+# Fe de erratas
+# - Pueden crearse dos eventos el mismo día del calendario.
+
+
 import json
 import os
 import sys
 import platform 
-import time
+import time, locale
+import getpass # para meter contraseñas: https://docs.python.org/2/library/getpass.html#module-getpass
 import calendario
-from imagenToString import imgToStr
+from imageToString import imgToStr
 
 
 # Modifique esta variable con su nombre
@@ -39,17 +52,29 @@ def salirPrograma ():
 	sys.exit(0)
 
 
-
+def determinarMensajeDia ():
+	str_hora = time.strftime("%H")
+	if (str_hora in ["06", "07", "08", "09", "10", "11", "12"]):
+		return "Buenos días"
+	elif (str_hora in ["13", "14", "15", "16", "17", "18", "19", "20"]):
+		return "Buenas tardes"
+	else:
+		return "Buenas noches"
 
 
 
 
 ## MAIN
+
+# Utilizo el locale del sistema:
+locale.setlocale(locale.LC_ALL, '')
+
+
 char_c = ''
 while (char_c not in ['n', 'N', 's', 'S']):
 	limpiarPantalla()
 	#print(str_imgAsistente)
-	mecanografiar("Buenas noches, " + str_nombrePaciente + ".")
+	mecanografiar(determinarMensajeDia() + ", " + str_nombrePaciente + ".")
 	mecanografiar("Soy Rem, tu asistente personal.")
 	mecanografiar("Hoy es " + time.strftime("%A %d de %B de %Y")) # Miércoles 07 de Junio de 2017 
 	input()	# getch
@@ -139,6 +164,7 @@ if idx_entrada in list(agenda.keys()):
 				mecanografiar("Se produjo un error y no pude subir la entrada.")
 		else:
 			mecanografiar("Vale.")
+			input()
 		salirPrograma()
 
 
