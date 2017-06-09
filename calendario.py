@@ -28,10 +28,11 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-
+# Traducción de valoraciones a texto
 dic_valoracion = {"0": "No valorado", "1": "Bueno", "2": "Regular", "3": "Malo"}
-dic_colorId = {"malo": "0", "regular": 5, "bueno": 2, "no valorado": 1} # Google API: 0 - rojo, 5 - amarillo, 2 - verde
 
+# Google API Colors: 1 cian, 2 verde, 3 rosa, 4 5 amarillo, 7 aguamarina, 9 azul, 11 rojo
+dic_colorId = {"no valorado": 1, "bueno": 2, "regular": 5, "malo": 11} 
 
 # Habrá que introducir previamente el ID de Calendar en el fichero client_secret.json,
 # "calendario": "jdkaskdljkl32423@group.calendar.google.com"
@@ -41,6 +42,7 @@ dic_colorId = {"malo": "0", "regular": 5, "bueno": 2, "no valorado": 1} # Google
 with open (CLIENT_SECRET_FILE) as json_file:
 	json_secret = json.load(json_file)
 	str_calendarId = json_secret["calendario"]
+json_file.close()
 
 
 
@@ -76,19 +78,34 @@ def get_credentials():
 
 
 
-
+# Sube una entrada de la agenda médica a Google Calendar
 def subirEntrada (dic_entrada):
+	global str_calendarId
 	# Identificarse y elegir calendario
 	credentials = get_credentials()
 	http = credentials.authorize(httplib2.Http())
 	service = discovery.build('calendar', 'v3', http=http)
 
-	str_descripcion = (dic_entrada["sintomas"] +
-										"\nmedicación:"  + 
-										"\n  + desayuno: " + dic_entrada["medicacion"]["desayuno"] + 
-										"\n  + comida:   " + dic_entrada["medicacion"]["comida"] +
-										"\n  + cena:     " + dic_entrada["medicacion"]["cena"])
+	str_descripcion = "sintomas:\n" + str(dic_entrada["sintomas"])
+
+	if (str(dic_entrada["medicacion"]["desayuno"]) != '' or
+		  str(dic_entrada["medicacion"]["comida"])   != '' or
+		  str(dic_entrada["medicacion"]["cena"])     != ''):
+		str_descripcion += "\nmedicación:"
+
+	if (str(dic_entrada["medicacion"]["desayuno"]) != ''):
+		str_descripcion += "\n  + desayuno: " + str(dic_entrada["medicacion"]["desayuno"])
+
+	if (str(dic_entrada["medicacion"]["comida"]) != ''):
+		str_descripcion += "\n  + comida: " + str(dic_entrada["medicacion"]["comida"])
+
+	if (str(dic_entrada["medicacion"]["cena"]) != ''):
+		str_descripcion += "\n  + cena: " + str(dic_entrada["medicacion"]["cena"])
+
+	if (int(dic_entrada["papelera"]) >=0):
+		str_descripcion += "\npapelera: " + str(dic_entrada["papelera"]) + "%"
 	
+
 	str_fecha = dic_entrada["fecha"]
 	str_fecha = str_fecha[:4] + '-' + str_fecha[4:6] + '-' + str_fecha[6:]
 
@@ -109,31 +126,90 @@ def subirEntrada (dic_entrada):
 		'colorId': dic_colorId[dic_valoracion[str_valoracion].lower()],
 	}
 
-
+	# print(event)
 	# Publicar evento en calendario
 	try:
 		event = service.events().insert(calendarId=str_calendarId, body=event).execute()
 		bool_exito = True
 	except Exception as e:
 		bool_exito = False
+		raise e
 
 	return bool_exito
 
 
 
-# Sube todos los registros de la agenda
+
+# Sube todos los registros de la agenda a Google Calendar
 def subirAgenda (str_agenda = "agenda.json"):
 	# Identificarse
 	credentials = get_credentials()
 	http = credentials.authorize(httplib2.Http())
 	service = discovery.build('calendar', 'v3', http=http)
 
-	# INCOMPLETO
+	with open (str_agenda) as json_file:
+		agenda = json.load(json_file)
+		list_fechas = sorted(agenda)
+
+		for fecha in list_fechas:
+			bool_exito = subirEntrada(agenda[fecha])
+			#print(bool_exito)
+	json_file.close()
+
+
+
+# Elimina el calendario actual de Google Calendar
+def eliminarCalendario ():
+	global str_calendarId
+	
+	# Identificarse
+	credentials = get_credentials()
+	http = credentials.authorize(httplib2.Http())
+	service = discovery.build('calendar', 'v3', http=http)
+
+	# Limpiar entradas de calendario
+	service.calendars().delete(calendarId=str_calendarId).execute()
+
+
+
+
+# Crea un calendario nuevo y lo añade al fichero client_secret.json
+def crearCalendario ():
+	global str_calendarId
+	global CLIENT_SECRET_FILE
+
+	# Identificarse
+	credentials = get_credentials()
+	http = credentials.authorize(httplib2.Http())
+	service = discovery.build('calendar', 'v3', http=http)
+
+	calendar = {
+		'summary': 'alergia',
+		'description': "Calendario de sintomatología de alergias creado por agendaMedica.py"}
+
+	created_calendar = service.calendars().insert(body=calendar).execute()
+	
+	str_calendarId = created_calendar['id']
+	print(str_calendarId)
+
+	# Guardar en fichero secreto
+	json_secret = {}
+	with open (CLIENT_SECRET_FILE) as inputFile:
+		json_secret = json.load(inputFile)
+	inputFile.close()
+	
+	json_secret["calendario"] = str_calendarId
+
+	with open (CLIENT_SECRET_FILE, 'w') as outputFile:
+		json.dump(json_secret, outputFile)
+	outputFile.close()
+
+
 
 
 
 		
-
+# Para pruebas
 def main():
 	"""Shows basic usage of the Google Calendar API.
 
