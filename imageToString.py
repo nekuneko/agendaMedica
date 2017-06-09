@@ -1,6 +1,5 @@
 from PIL import Image
-import sys
-import ansi
+import imageAux
 
 
 def load_and_resize_image(imgname, antialias, maxLen, aspectRatio):
@@ -41,15 +40,6 @@ def load_and_resize_image(imgname, antialias, maxLen, aspectRatio):
 
 
 
-def indent_image (img):
-	for i in img:
-		print((i),end="")
-		#if img[i] == '\n':
-		#	img[i] += "\t\t"
-	
-	#print(img)
-
-
 
 def imgToStr (imgname, maxLen = 45, target_aspect_ratio = 0.5):
 
@@ -77,7 +67,7 @@ def imgToStr (imgname, maxLen = 45, target_aspect_ratio = 0.5):
 	bgcolor = None
 
 	# MAKE MAGIC
-	imagenFinal = ansi.generate_ANSI_from_pixels(pixel, width, height, bgcolor)[0]
+	imagenFinal = imageAux.generate_ANSI_from_pixels(pixel, width, height, bgcolor)[0]
 
 	# Undo residual color changes, output newline because
 	# generate_ANSI_from_pixels does not do so
@@ -90,5 +80,3 @@ def imgToStr (imgname, maxLen = 45, target_aspect_ratio = 0.5):
 #print(imagenCopia)
 #print(imagenFinal.replace("\n", "\n\t"))
 #print(imagenFinal)
-
-#sys.stdout.flush()
