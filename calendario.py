@@ -3,6 +3,7 @@
 from __future__ import print_function
 import httplib2
 import os
+import json
 
 from apiclient import discovery
 from oauth2client import client
@@ -26,13 +27,16 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
-# Leer calendario desde fichero, en el fichero se guarda el ID de Calendar
+
+
+# Habrá que introducir previamente el ID de Calendar en el fichero client_secret.json,
+# "calendario": "jdkaskdljkl32423@group.calendar.google.com"
+# 
 # Este código se puede extraer desde Google Calendar, haciendo clic sobre la
 # flecha a la derecha del calendario y luego en Configuracion de Calendario
-# es de la forma ijdkaskdljkl32423@group.calendar.google.com
-# el fichero solo debe contener una línea con este ID de calendario
-with open ("calendario.txt") as file:
-	str_calendarId = file.readline()
+with open (CLIENT_SECRET_FILE) as json_file:
+	json_secret = json.load(json_file)
+	str_calendarId = json_secret["calendario"]
 
 
 
