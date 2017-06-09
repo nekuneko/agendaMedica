@@ -4,7 +4,6 @@
 #  - Cifrar ficheros locales con contraseña.
 #  - Eliminar necesidad del Oauth
 #  - Comprobar si en la cuenta existe un calendario "alergia", sino crear uno nuevo
-#  - Subir una agenda completa a Google Calendar
 
 # Fe de erratas
 # - Pueden crearse dos eventos el mismo día del calendario.
@@ -52,13 +51,19 @@ def salirPrograma ():
 	sys.exit(0)
 
 
+int_momentoDia = 0 # 0 dia, 1 tarde, 2 noche
 def determinarMensajeDia ():
+	global int_momentoDia
+
 	str_hora = time.strftime("%H")
 	if (str_hora in ["06", "07", "08", "09", "10", "11", "12"]):
+		int_momentoDia = "0"
 		return "Buenos días"
 	elif (str_hora in ["13", "14", "15", "16", "17", "18", "19", "20"]):
+		int_momentoDia = "1"
 		return "Buenas tardes"
 	else:
+		int_momentoDia = "2"
 		return "Buenas noches"
 
 
@@ -126,15 +131,17 @@ if idx_entrada in list(agenda.keys()):
 	if (char_c in ['s', 'S']):
 		limpiarPantalla()
 		mecanografiar("Estos son los datos que tengo registrados...")
-		mecanografiar("- sintomas: " + agenda[idx_entrada]["sintomas"])
+		mecanografiar("- sintomas: " + str(agenda[idx_entrada]["sintomas"]))
 		mecanografiar("- medicación:")
 		print("   + desayuno: ", end="") 
-		mecanografiar(agenda[idx_entrada]["medicacion"]["desayuno"])
+		mecanografiar(str(agenda[idx_entrada]["medicacion"]["desayuno"]))
 		print("   + comida:   ", end="") 
-		mecanografiar(agenda[idx_entrada]["medicacion"]["comida"])
+		mecanografiar(str(agenda[idx_entrada]["medicacion"]["comida"]))
 		print("   + cena:     ", end="") 
-		mecanografiar(agenda[idx_entrada]["medicacion"]["cena"])
-		mecanografiar("- valoración: " + dic_valoracion[agenda[idx_entrada]["valoracion"]])
+		mecanografiar(str(agenda[idx_entrada]["medicacion"]["cena"]))
+		if (int(agenda[idx_entrada]["papelera"]) >= 0):
+			mecanografiar("- papelera:    " + str(agenda[idx_entrada]["papelera"]) + "%")
+		mecanografiar("- valoración: " + str(dic_valoracion[agenda[idx_entrada]["valoracion"]]))
 		input()
 
 	char_c = ''
@@ -207,6 +214,20 @@ else:
 
 
 
+# Preguntar por porcentaje de papelera
+limpiarPantalla()
+mecanografiar("¿Cuál ha sido el porcentaje de la papelera?")
+print("Introduzca un valor numérico de 0 a 150, o negativo si quiere saltar la valoración")
+try:
+	int_porcentaje = int(input())
+except Exception as e:
+	int_porcentaje = -1
+
+if (int_porcentaje < 0):
+	int_porcentaje = -1
+elif (int_porcentaje > 150):
+	int_porcentaje = 150
+
 
 
 
@@ -246,6 +267,7 @@ dic_entrada = {
 		"desayuno": str_medicacionDesayuno, 
 		"comida": 	str_medicacionComida, 
 		"cena": 		str_medicacionCena},
+	"papelera":   int_porcentaje,
 	"valoracion": char_valoracion}
 
 # insertar
@@ -266,6 +288,7 @@ except Exception as e:
 	print("   + desayuno: " + str_medicacionDesayuno)
 	print("   + comida:   " + str_medicacionComida)
 	print("   + cena:     " + str_medicacionCena)
+	print("- papelera:    " + str(int_porcentaje))
 	print("- valoración: "  + dic_valoracion[char_valoracion])
 	mecanografiar("\nPulsa cualquier tecla para continuar")
 	input()
@@ -300,5 +323,11 @@ if (char_c in ['s', 'S']):
 
 
 
+# Despedida
+dic_momentoDia = {
+	'0': "¡Que pases un buen día!", 
+	'1': "¡Aprovecha la tarde!",
+	'2': "¡Que duermas bien!"}
 
-mecanografiar("¡Que duermas bien! =^w^=")
+limpiarPantalla()
+mecanografiar(str(dic_momentoDia[int_momentoDia]) + " =^w^=")
