@@ -10,15 +10,15 @@
 # - Pueden crearse dos eventos el mismo día del calendario.
 
 
-import json
 import os
 import sys
-import platform 
-import time, locale
+import json
 import getpass # para meter contraseñas: https://docs.python.org/2/library/getpass.html#module-getpass
-import calendario
-from imageToString import imgToStr
-
+import platform			# determinar si es windows 
+import calendario 	# módulo local, Google Calendar
+import time, locale
+from imageToString import imgToStr 	# módulo local, Cargador de Imágenes
+from calendario import dic_valoracion # 0: No valorado, 1: Bueno, 2: Regular, 3: Malo
 
 # Modifique esta variable con su nombre
 str_nombrePaciente = "Neku"
@@ -65,7 +65,6 @@ def determinarMensajeDia ():
 
 
 ## MAIN
-
 # Utilizo el locale del sistema:
 locale.setlocale(locale.LC_ALL, '')
 
@@ -135,6 +134,7 @@ if idx_entrada in list(agenda.keys()):
 		mecanografiar(agenda[idx_entrada]["medicacion"]["comida"])
 		print("   + cena:     ", end="") 
 		mecanografiar(agenda[idx_entrada]["medicacion"]["cena"])
+		mecanografiar("- valoración: " + dic_valoracion[agenda[idx_entrada]["valoracion"]])
 		input()
 
 	char_c = ''
@@ -163,6 +163,7 @@ if idx_entrada in list(agenda.keys()):
 			else:
 				mecanografiar("Se produjo un error y no pude subir la entrada.")
 		else:
+			limpiarPantalla()
 			mecanografiar("Vale.")
 			input()
 		salirPrograma()
@@ -206,31 +207,32 @@ else:
 
 
 
-estado = {"0": "none", "1": "bueno", "2": "regular", "3": "malo"}
+
 
 
 # Preguntar por valoración simple
-char_c =  ''
-while (char_c not in ['0', '1', '2', '3']):
+char_valoracion =  ''
+while (char_valoracion not in ['0', '1', '2', '3']):
 	limpiarPantalla()
 	mecanografiar("¿Cómo valoraría su estado de salud de hoy?")
 	print(" 0 - Saltar valoración")
-	print(" 1 - Bueno")
-	print(" 2 - Regular")
-	print(" 3 - Malo")
-	char_c = str(input())
+	print(" 1 - " + dic_valoracion['1']) # Bueno
+	print(" 2 - " + dic_valoracion['2']) # Regular
+	print(" 3 - " + dic_valoracion['3']) # Malo
+	char_valoracion = str(input())
 
+	if (char_valoracion in ['1', '2', '3']):
+		char_c = ''
+		while (char_c not in ['n', 'N', 's', 'S']):
+			limpiarPantalla()
+			mecanografiar("Su estado de salud de hoy ha sido " + dic_valoracion[char_valoracion].lower() + ".")
+			mecanografiar("¿Es correcto?")
+			print(" n - No")
+			print(" s - Sí")
+			char_c = str(input())
 
-str_estado = char_c
-if (str_estado != "0"):
-	char_c = ''
-	while (char_c not in ['n', 'N', 's', 'S']):
-		limpiarPantalla()
-		mecanografiar("Su estado de salud de hoy ha sido " + estado[str_estado].lower() + ".")
-		mecanografiar("¿Es correcto?")
-		print(" n - No")
-		print(" s - Sí")
-		char_c = str(input())
+		if (char_c in ['n', 'N']):
+			char_valoracion = ''
 
 
 # Añadir datos a la agenda
@@ -244,7 +246,7 @@ dic_entrada = {
 		"desayuno": str_medicacionDesayuno, 
 		"comida": 	str_medicacionComida, 
 		"cena": 		str_medicacionCena},
-	"valoracion": str_estado}
+	"valoracion": char_valoracion}
 
 # insertar
 agenda[idx_entrada] = dic_entrada
@@ -260,10 +262,11 @@ except Exception as e:
 	mecanografiar("Ha ocurrido un error mientras guardaba los datos.")
 	mecanografiar("Estos son los datos que me has proporcionado, cópialos para que no se pierdan.")
 	print("- sintomas:" + str_sintomasDia)
-	print("- medicacion:")
+	print("- medicación:")
 	print("   + desayuno: " + str_medicacionDesayuno)
 	print("   + comida:   " + str_medicacionComida)
 	print("   + cena:     " + str_medicacionCena)
+	print("- valoración: "  + dic_valoracion[char_valoracion])
 	mecanografiar("\nPulsa cualquier tecla para continuar")
 	input()
 

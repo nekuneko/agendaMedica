@@ -12,6 +12,7 @@ from oauth2client.file import Storage
 
 import datetime
 
+
 try:
 		import argparse
 		flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -27,6 +28,9 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
+
+dic_valoracion = {"0": "No valorado", "1": "Bueno", "2": "Regular", "3": "Malo"}
+dic_colorId = {"malo": "0", "regular": 5, "bueno": 2, "no valorado": 1} # Google API: 0 - rojo, 5 - amarillo, 2 - verde
 
 
 # Habrá que introducir previamente el ID de Calendar en el fichero client_secret.json,
@@ -72,11 +76,6 @@ def get_credentials():
 
 
 
-dic_tituloEvento = {"3": "Malo", "2": "Regular", "1": "Bueno", "0": "NoValorado"}
-dic_colorId = {"malo": "0", "regular": 5, "bueno": 2, "novalorado": 1} # Google API: 0 - rojo, 5 - amarillo, 2 - verde
-
-
-
 
 def subirEntrada (dic_entrada):
 	# Identificarse y elegir calendario
@@ -98,7 +97,7 @@ def subirEntrada (dic_entrada):
 
 	event = {
 		# Título del evento: Valoración Bueno, Malo, Regular
-		'summary': dic_tituloEvento[str_valoracion].title(),
+		'summary': dic_valoracion[str_valoracion],
 		# Descripción de los síntomas del día.
 		'description': str_descripcion,
 		# evento durante todo el día
@@ -107,7 +106,7 @@ def subirEntrada (dic_entrada):
 		'end': {
 			'date': str_fecha},
 		# color del evento en función del título
-		'colorId': dic_colorId[dic_tituloEvento[str_valoracion].lower()],
+		'colorId': dic_colorId[dic_valoracion[str_valoracion].lower()],
 	}
 
 
