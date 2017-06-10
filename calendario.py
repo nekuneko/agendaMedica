@@ -4,6 +4,7 @@ from __future__ import print_function
 import httplib2
 import os
 import json
+import time
 
 from apiclient import discovery
 from oauth2client import client
@@ -31,8 +32,8 @@ APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 # Traducción de valoraciones a texto
 dic_valoracion = {"0": "No valorado", "1": "Bueno", "2": "Regular", "3": "Malo"}
 
-# Google API Colors: 1 cian, 2 verde, 3 rosa, 4 5 amarillo, 7 aguamarina, 9 azul, 11 rojo
-dic_colorId = {"no valorado": 1, "bueno": 2, "regular": 5, "malo": 11} 
+# Google API Colors: 1 purpura, 2 verde, 3 rosa, 4 5 amarillo, 7 aguamarina, 9 azul, 11 rojo
+dic_colorId = {"no valorado": 9, "bueno": 2, "regular": 5, "malo": 11} 
 
 # Habrá que introducir previamente el ID de Calendar en el fichero client_secret.json,
 # "calendario": "jdkaskdljkl32423@group.calendar.google.com"
@@ -75,6 +76,7 @@ def get_credentials():
 						credentials = tools.run(flow, store)
 				print('Storing credentials to ' + credential_path)
 		return credentials
+
 
 
 
@@ -140,13 +142,26 @@ def subirEntrada (dic_entrada):
 
 
 
+# sube un evento por fecha en la agenda, en formato YYYYMMDD
+def subirFecha (str_fecha = time.strftime("%Y%m%d"), str_agenda = "agenda.json"):
+	bool_exito = False
+	with open (str_agenda) as inputFile:
+		agenda = json.load(inputFile)
+		try:
+			dic_entrada = agenda[str_fecha]
+			bool_exito = subirEntrada(dic_entrada)
+		except Exception as e:
+			print("No hay ninguna entrada en la agenda con fecha " + str_fecha + ".")
+			#raise e
+	inputFile.close()
+
+	return bool_exito
+
+
+
+
 # Sube todos los registros de la agenda a Google Calendar
 def subirAgenda (str_agenda = "agenda.json"):
-	# Identificarse
-	credentials = get_credentials()
-	http = credentials.authorize(httplib2.Http())
-	service = discovery.build('calendar', 'v3', http=http)
-
 	with open (str_agenda) as json_file:
 		agenda = json.load(json_file)
 		list_fechas = sorted(agenda)
