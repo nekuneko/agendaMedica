@@ -165,10 +165,12 @@ if idx_entrada in list(agenda.keys()):
 		if (char_c in ['s', 'S']):
 			bool_exito = calendario.subirEntrada(agenda[idx_entrada])
 
+			limpiarPantalla()
 			if (bool_exito):
 				mecanografiar("Entrada subida correctamente.")
 			else:
 				mecanografiar("Se produjo un error y no pude subir la entrada.")
+			input()
 		else:
 			limpiarPantalla()
 			mecanografiar("Vale.")
@@ -316,12 +318,16 @@ while (char_c not in ['n', 'N', 's', 'S']):
 if (char_c in ['s', 'S']):
 	bool_exito = calendario.subirEntrada(dic_entrada)
 
+	limpiarPantalla()
 	if (bool_exito):
 		mecanografiar("Entrada subida correctamente.")
 	else:
 		mecanografiar("Se produjo un error y no pude subir la entrada.")
-
-
+	input()
+else:
+	limpiarPantalla()
+	mecanografiar("Vale.")
+	input()
 
 # Despedida
 dic_momentoDia = {
