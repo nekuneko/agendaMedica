@@ -6,3 +6,9 @@ agenda.json
 client_secret.json
 
 calendario.txt
+
+*.docx
+
+papelera.png
+
+*.html

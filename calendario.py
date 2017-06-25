@@ -83,6 +83,7 @@ def get_credentials():
 # Sube una entrada de la agenda médica a Google Calendar
 def subirEntrada (dic_entrada):
 	global str_calendarId
+	
 	# Identificarse y elegir calendario
 	credentials = get_credentials()
 	http = credentials.authorize(httplib2.Http())

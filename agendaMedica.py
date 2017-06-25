@@ -1,4 +1,4 @@
-# pip3 install --upgrade pillow httplib2 oauth2client google-api-python-client
+# pip3 install --upgrade pillow httplib2 oauth2client google-api-python-client python-docx plotly
 
 # Mejoras Pendientes
 #  - Cifrar ficheros locales con contraseña.
@@ -170,6 +170,7 @@ if idx_entrada in list(agenda.keys()):
 				mecanografiar("Entrada subida correctamente.")
 			else:
 				mecanografiar("Se produjo un error y no pude subir la entrada.")
+				mecanografiar("Trata de subirla manualmente ejecutando la función subirFecha() del módulo calendario con iPython3.")
 			input()
 		else:
 			limpiarPantalla()
@@ -323,6 +324,7 @@ if (char_c in ['s', 'S']):
 		mecanografiar("Entrada subida correctamente.")
 	else:
 		mecanografiar("Se produjo un error y no pude subir la entrada.")
+		mecanografiar("Trata de subirla manualmente ejecutando la función subirFecha() del módulo calendario con iPython3.")
 	input()
 else:
 	limpiarPantalla()
